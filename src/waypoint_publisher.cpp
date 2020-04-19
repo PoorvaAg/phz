@@ -14,6 +14,11 @@ geometry_msgs::Pose wp3;
 geometry_msgs::Pose wp4;
 geometry_msgs::PoseArray wp;
 
+int count = 0;
+double pod_x = 0.0;
+double pod_y = 0.0;
+double theta = 0.0;
+
 geometry_msgs::Pose set_pose(double R, double theta){
 	geometry_msgs::Pose p;
 	tf2::Quaternion quat;
@@ -28,8 +33,8 @@ geometry_msgs::Pose set_pose(double R, double theta){
 }
 
 void pod_pred_CB(const geometry_msgs::PoseStamped::ConstPtr& msg){
-	double x = msg->pose.position.x;
-	double y = msg->pose.position.y;
+	pod_x = (pod_x*count + msg->pose.position.x)/(count+1);
+	pod_y = (pod_y*count + msg->pose.position.y)/(count+1);
 
 	tf2::Quaternion q(
 		msg->pose.orientation.x,
@@ -41,13 +46,16 @@ void pod_pred_CB(const geometry_msgs::PoseStamped::ConstPtr& msg){
 	double roll, pitch, yaw;
 	m.getRPY(roll, pitch, yaw);
 
-	double R =  sqrt(x*x + y*y);
+	theta = (theta*count+yaw)/(count+1);
+	count++;
 
-	wp0 = set_pose(R-3.5, yaw);
-	wp1 = set_pose(R-3.0, yaw);
-	wp2 = set_pose(R-2.0, yaw);
-	wp3 = set_pose(R-1.0, yaw);
-	wp4 = msg->pose;
+	double R =  sqrt(pod_x*pod_x + pod_y*pod_y);
+
+	wp0 = set_pose(R-3.5, theta);
+	wp1 = set_pose(R-3.0, theta);
+	wp2 = set_pose(R-2.0, theta);
+	wp3 = set_pose(R-1.0, theta);
+	wp4 = set_pose(R, theta);
 
 	//aliter: create std::vector<geometry_msgs::Poses> p
 	//keep p.push_back(R-x,yaw)
