@@ -7,6 +7,8 @@
 #include <tf2/LinearMath/Matrix3x3.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
+#define RAD2DEG 57.295779513
+
 geometry_msgs::Pose wp0;
 geometry_msgs::Pose wp1;
 geometry_msgs::Pose wp2;
@@ -34,6 +36,7 @@ geometry_msgs::Pose set_pose(double R, double theta){
 
 void pod_pred_CB(const geometry_msgs::PoseStamped::ConstPtr& msg){
 	
+	std::vector<geometry_msgs::Pose> poses;
 	
 	pod_x = (pod_x*count + msg->pose.position.x)/(count+1);
 	pod_y = (pod_y*count + msg->pose.position.y)/(count+1);
@@ -64,11 +67,20 @@ void pod_pred_CB(const geometry_msgs::PoseStamped::ConstPtr& msg){
 
 	wp.header.stamp = ros::Time::now();
 	wp.header.frame_id = "map";
-	wp.poses.push_back(wp0);
-	wp.poses.push_back(wp1);
-	wp.poses.push_back(wp2);
-	wp.poses.push_back(wp3);
-	wp.poses.push_back(wp4);
+	poses.push_back(wp0);
+	poses.push_back(wp1);
+	poses.push_back(wp2);
+	poses.push_back(wp3);
+	poses.push_back(wp4);
+
+	ROS_INFO("WP_0: X: %.2f, Y: %.2f, Yaw:%.2f", wp0.position.x, wp0.position.y, theta*RAD2DEG);
+	ROS_INFO("WP_1: X: %.2f, Y: %.2f, Yaw:%.2f", wp1.position.x, wp1.position.y, theta*RAD2DEG);
+	ROS_INFO("WP_2: X: %.2f, Y: %.2f, Yaw:%.2f", wp2.position.x, wp2.position.y, theta*RAD2DEG);
+	ROS_INFO("WP_3: X: %.2f, Y: %.2f, Yaw:%.2f", wp3.position.x, wp3.position.y, theta*RAD2DEG);
+	ROS_INFO("WP_4: X: %.2f, Y: %.2f, Yaw:%.2f", wp4.position.x, wp4.position.y, theta*RAD2DEG);
+	
+
+	wp.poses = poses;
 
 }
 
@@ -80,7 +92,7 @@ int main(int argc, char **argv){
 	ros::Subscriber pod_pred_sub = n.subscribe("pod_predicted_laser",1000,pod_pred_CB);
 	ros::Publisher wp_pub = n.advertise<geometry_msgs::PoseArray>("waypoints_goal",10);
 
-	ros::Rate loop_rate(1);
+	ros::Rate loop_rate(10);
 
 	while(ros::ok()) {
 
