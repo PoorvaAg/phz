@@ -45,11 +45,13 @@ void ndt_pose_CB(const geometry_msgs::PoseStamped::ConstPtr& msg){
 	double dist = sqrt((x-target_x)*(x-target_x)+(y-target_y)*(y-target_y));
 
 	if (dist<=min_dist){
-		ROS_INFO("PHZ reached \n");
-		ROS_INFO("POD Location: X: %.2f Y: %.2f \n", target_x, target_y);
-		ROS_INFO("Received odom in '%s' frame : X: %.2f Y: %.2f \n", msg->header.frame_id.c_str(), x, y);
+		ROS_INFO("PHZ reached");
+		ROS_INFO("POD Location: X: %.2f Y: %.2f", target_x, target_y);
+		ROS_INFO("Received odom in '%s' frame : X: %.2f Y: %.2f", msg->header.frame_id.c_str(), x, y);
 		out_msg.data = "REACHED";
 		detection_pub.publish(out_msg);
+	} else {
+		ROS_INFO("PHZ not reached");
 	}
 }
 
@@ -62,7 +64,7 @@ int main(int argc, char **argv){
 	ros::Subscriber phz_start_sub = n.subscribe("phz_start_groundtruth", 1000, phz_start_CB);
 	detection_pub = n.advertise<std_msgs::String>("detected", 1000);
 
-	ros::Rate loop_rate(1);
+	ros::Rate loop_rate(10);
 
 	while(ros::ok()) {
 		ros::spinOnce();
