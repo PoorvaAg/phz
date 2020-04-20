@@ -12,8 +12,8 @@
 
 
 
-visualization_msgs::MarkerArray phz_box_pred;
-visualization_msgs::MarkerArray phz_box_gt;
+visualization_msgs::MarkerArray phz_array;
+
 
 double hw = 2.0;
 double fl = 4.0;
@@ -51,69 +51,62 @@ std::vector<geometry_msgs::Point> generate_points(double x, double y, double the
 	return pts;
 }
 
-void getBBMarker(){
+visualization_msgs::Marker getBBMarker(string name, int id, float scale, float r){
 	
 	visualization_msgs::Marker mk;
-	mk.header.frame_id = "/map"
-	mk.header.stamp = rospy.get_rostime()
-	mk.ns = "PHZ"
-	mk.id = 0
-	mk.type = marker.LINE_STRIP
-	mk.action = marker.ADD
-	mk.scale.x = 0.2
-	mk.color.a = 1.0
-	mk.color.r = 0.0
-	mk.color.g = 1.0
-	mk.color.b = 0.0
+	mk.header.frame_id = "/map";
+	mk.header.stamp = rospy.get_rostime();
+	mk.ns = name;
+	mk.id = id;
+	mk.type = marker.LINE_STRIP;
+	mk.action = marker.ADD;
+	mk.scale.x = scale;
+	mk.color.a = 1.0;
+	mk.color.r = r;
+	mk.color.g = 1.0;
+	mk.color.b = 0.0;
 
-	mk.points = generate_points()
+	return mk;
 
-
-	/*
-	nums = np.random.uniform(-0.03,0.05,1)
-	pt1 = Point(x=x_lim[1] + pod_loc_pred[0], y=y_lim[1]+ pod_loc_pred[1])
-	pt2 = Point(x=x_lim[0] + pod_loc_pred[0], y=y_lim[1]+ pod_loc_pred[1])
-	pt3 = Point(x=x_lim[0] + pod_loc_pred[0], y=y_lim[0]+ pod_loc_pred[1])
-	pt4 = Point(x=x_lim[1] + pod_loc_pred[0], y=y_lim[0]+ pod_loc_pred[1])
-	marker.points.append(pt1)
-	marker.points.append(pt2)
-	marker.points.append(pt3)
-	marker.points.append(pt4)
-	marker.points.append(pt1)
-	marker.pose.orientation = Quaternion(*quaternion_from_euler(0, 0, nums))
-	phz_array.markers.append(marker)
-	*/
-
-	
-
-	marker = Marker()
-	marker.header.frame_id = "/map"
-	marker.header.stamp = rospy.get_rostime()
-	marker.ns = "PHZ_GT"
-	marker.id = 1
-	marker.type = marker.LINE_STRIP
-	marker.action = marker.ADD
-	marker.scale.x = 0.3
-	marker.color.a = 1.0
-	marker.color.r = 1.0
-	marker.color.g = 1.0
-	marker.color.b = 0.0
-	pt1 = Point(x=x_lim[1] + pod_loc_gt[0], y=y_lim[1]+ pod_loc_gt[1])
-	pt2 = Point(x=x_lim[0] + pod_loc_gt[0], y=y_lim[1]+ pod_loc_gt[1])
-	pt3 = Point(x=x_lim[0] + pod_loc_gt[0], y=y_lim[0]+ pod_loc_gt[1])
-	pt4 = Point(x=x_lim[1] + pod_loc_gt[0], y=y_lim[0]+ pod_loc_gt[1])
-	marker.points.append(pt1)
-	marker.points.append(pt2)
-	marker.points.append(pt3)
-	marker.points.append(pt4)
-	marker.points.append(pt1)
-
-	phz_array.markers.append(marker)
-
-	return phz_array
 }
 
+void pod_pred_CB(const geometry_msgs::PoseStamped::ConstPtr& msg){
+	double x = msg->pose.position.x;
+	double y = msg->pose.position.y;
 
+	tf2::Quaternion q(
+		msg->pose.orientation.x,
+		msg->pose.orientation.y,
+		msg->pose.orientation.z,
+		msg->pose.orientation.w);
+	tf2::Matrix3x3 mat(q);
+
+	double roll, pitch, yaw;
+	mat.getRPY(roll, pitch, yaw);
+
+	visualization_msgs::Marker mk;
+	mk = getBBMarker("PHZ_pred", 0, 0.2, 0.0);
+	mk.points = generate_points(x, y, yaw);
+}
+
+void pod_gt_CB(const geometry_msgs::PoseStamped::ConstPtr& msg){
+	double x = msg->pose.position.x;
+	double y = msg->pose.position.y;
+
+	tf2::Quaternion q(
+		msg->pose.orientation.x,
+		msg->pose.orientation.y,
+		msg->pose.orientation.z,
+		msg->pose.orientation.w);
+	tf2::Matrix3x3 mat(q);
+
+	double roll, pitch, yaw;
+	mat.getRPY(roll, pitch, yaw);
+
+	visualization_msgs::Marker mk;
+	mk = getBBMarker("PHZ_gt", 1, 0.3, 1.0);
+	mk.points = generate_points(x, y, yaw);
+}
 
 
 
@@ -125,7 +118,7 @@ int main(int argc, char **argv){
 	ros::Subscriber pod_pred_sub = n.subscribe("pod_predicted_laser",1000, pod_pred_CB);
 	ros::Subscriber pod_gt_sub = n.subscribe("pod_groundtruth",1000,pod_gt_CB);
 
-	ros::Rate loop_rate(1);
+	ros::Rate loop_rate(10);
 
 	while(ros::ok()) {
 

@@ -16,6 +16,8 @@ geometry_msgs::Pose wp3;
 geometry_msgs::Pose wp4;
 geometry_msgs::PoseArray wp;
 
+ros::Publisher wp_pub;
+
 int count = 0;
 double pod_x = 0.0;
 double pod_y = 0.0;
@@ -91,7 +93,7 @@ int main(int argc, char **argv){
 	ros::NodeHandle n;	
 
 	ros::Subscriber pod_pred_sub = n.subscribe("pod_predicted_laser",1000,pod_pred_CB);
-	ros::Publisher wp_pub = n.advertise<geometry_msgs::PoseArray>("waypoints_goal",10);
+	wp_pub = n.advertise<geometry_msgs::PoseArray>("waypoints_goal",10);
 
 	ros::Rate loop_rate(10);
 
