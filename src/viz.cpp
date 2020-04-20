@@ -4,6 +4,7 @@
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/Point.h>
 #include <cmath>
+#include <vector>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2/LinearMath/Matrix3x3.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
@@ -13,7 +14,7 @@
 
 
 visualization_msgs::MarkerArray phz_array;
-
+std::vector<visualisation_msgs::Marker> markers(2, );
 
 double hw = 2.0;
 double fl = 4.0;
@@ -67,7 +68,6 @@ visualization_msgs::Marker getBBMarker(string name, int id, float scale, float r
 	mk.color.b = 0.0;
 
 	return mk;
-
 }
 
 void pod_pred_CB(const geometry_msgs::PoseStamped::ConstPtr& msg){
@@ -89,9 +89,13 @@ void pod_pred_CB(const geometry_msgs::PoseStamped::ConstPtr& msg){
 	mk.points = generate_points(x, y, yaw);
 }
 
+set_params(const geometry_msgs::PoseStamped::ConstPtr& msg){
+	std::
+}
+
 void pod_gt_CB(const geometry_msgs::PoseStamped::ConstPtr& msg){
-	double x = msg->pose.position.x;
-	double y = msg->pose.position.y;
+	gt_x = msg->pose.position.x;
+	gt_y = msg->pose.position.y;
 
 	tf2::Quaternion q(
 		msg->pose.orientation.x,
@@ -101,13 +105,16 @@ void pod_gt_CB(const geometry_msgs::PoseStamped::ConstPtr& msg){
 	tf2::Matrix3x3 mat(q);
 
 	double roll, pitch, yaw;
-	mat.getRPY(roll, pitch, yaw);
+	mat.getRPY(roll, pitch, );
 
-	visualization_msgs::Marker mk;
-	mk = getBBMarker("PHZ_gt", 1, 0.3, 1.0);
-	mk.points = generate_points(x, y, yaw);
+
+
+	
 }
 
+visualization_msgs::Marker mk;
+	mk = getBBMarker("PHZ_gt", 1, 0.3, 1.0);
+	mk.points = generate_points(x, y, yaw);
 
 
 int main(int argc, char **argv){
