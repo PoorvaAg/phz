@@ -32,9 +32,11 @@ void set_pod_loc(){
 
 void set_phz_start(){
 	double R = sqrt(pod_x*pod_x + pod_y*pod_y) - 4.0;
+	double theta = atan2(pod_y,pod_x);
+	phz_theta = pod_theta;
 	phz_msg.header.frame_id = "map";
-	phz_msg.pose.position.x = R*cos(pod_theta);
-	phz_msg.pose.position.y = R*sin(pod_theta);
+	phz_msg.pose.position.x = R*cos(theta);
+	phz_msg.pose.position.y = R*sin(theta);
 	phz_msg.pose.position.z = 0;
 	phz_msg.pose.orientation = pod_msg.pose.orientation;
 }
