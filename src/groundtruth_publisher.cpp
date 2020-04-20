@@ -49,20 +49,27 @@ int main(int argc, char **argv){
   
 	ros::Rate loop_rate(1);
 
-	n.getParam("/groundtruth/pod1/x_loc", pod_x);
-	n.getParam("/groundtruth/pod1/y_loc", pod_y);
-	n.getParam("/groundtruth/pod1/theta", pod_theta);
+	n.getParam("/align/pod1/x_loc", pod_x);
+	n.getParam("/align/pod1/y_loc", pod_y);
+	n.getParam("/align/pod1/theta", pod_theta);
 
 	set_pod_loc();
 	set_phz_start();
 
+
+
 	while(ros::ok()) {
+
+
+		ROS_INFO("Pod location ground truth: X: %.2f Y: %.2f", pod_msg.pose.position.x, pod_msg.pose.position.y);
+		ROS_INFO("PHZ start location ground truth: X: %.2f Y: %.2f", phz_msg.pose.position.x, phz_msg.pose.position.y);
 
 		pod_msg.header.stamp = ros::Time::now();
 		phz_msg.header.stamp = ros::Time::now();
-		
+
 		pod_gt_pub.publish(pod_msg);
 		phz_start_gt_pub.publish(phz_msg);
+		
 		ros::spinOnce();
 	  	loop_rate.sleep();
 	}

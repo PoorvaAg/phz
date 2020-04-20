@@ -33,6 +33,8 @@ geometry_msgs::Pose set_pose(double R, double theta){
 }
 
 void pod_pred_CB(const geometry_msgs::PoseStamped::ConstPtr& msg){
+	
+	
 	pod_x = (pod_x*count + msg->pose.position.x)/(count+1);
 	pod_y = (pod_y*count + msg->pose.position.y)/(count+1);
 

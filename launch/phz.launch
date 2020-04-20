@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-	<group ns="groundtruth">
+	<group ns="align">
         <rosparam file="$(find phz)/config/pod_locations.yaml" />
     </group>
 
