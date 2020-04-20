@@ -20,6 +20,7 @@ int count = 0;
 double pod_x = 0.0;
 double pod_y = 0.0;
 double theta = 0.0;
+int flag = 0;
 
 geometry_msgs::Pose set_pose(double R, double theta){
 	geometry_msgs::Pose p;
@@ -81,7 +82,7 @@ void pod_pred_CB(const geometry_msgs::PoseStamped::ConstPtr& msg){
 	
 
 	wp.poses = poses;
-
+	wp_pub.publish(wp);
 }
 
 int main(int argc, char **argv){
@@ -95,8 +96,6 @@ int main(int argc, char **argv){
 	ros::Rate loop_rate(10);
 
 	while(ros::ok()) {
-
-		wp_pub.publish(wp);
 		ros::spinOnce();
 		loop_rate.sleep();
 	}
