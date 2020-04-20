@@ -27,21 +27,6 @@ void ndt_pose_CB(const geometry_msgs::PoseStamped::ConstPtr& msg){
 	double x = msg->pose.position.x;
 	double y = msg->pose.position.y;
 
-	/*
-	double z = msg->pose.position.z;
-
-	tf2::Quaternion q(
-		msg->pose.orientation.x,
-		msg->pose.orientation.y,
-		msg->pose.orientation.z,
-		msg->pose.orientation.w);
-
-	tf2::Matrix3x3 m(q);
-
-	double roll, pitch, yaw;
-	m.getRPY(roll, pitch, yaw);
-	*/
-
 	double dist = sqrt((x-target_x)*(x-target_x)+(y-target_y)*(y-target_y));
 
 	if (dist<=min_dist){

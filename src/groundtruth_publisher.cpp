@@ -47,7 +47,7 @@ int main(int argc, char **argv){
 	ros::Publisher pod_gt_pub = n.advertise<geometry_msgs::PoseStamped>("pod_groundtruth", 1000);
 	ros::Publisher phz_start_gt_pub = n.advertise<geometry_msgs::PoseStamped>("phz_start_groundtruth", 1000);
   
-	ros::Rate loop_rate(1);
+	ros::Rate loop_rate(10);
 
 	n.getParam("/align/pod1/x_loc", pod_x);
 	n.getParam("/align/pod1/y_loc", pod_y);
