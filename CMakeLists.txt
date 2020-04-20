@@ -27,3 +27,8 @@ add_executable(waypoint_publisher_node src/waypoint_publisher.cpp)
 target_link_libraries(waypoint_publisher_node 
 	${catkin_LIBRARIES}
 )
+
+add_executable(viz_node src/viz.cpp)
+target_link_libraries(viz_node 
+	${catkin_LIBRARIES}
+)

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>phz</name>
-  <version>0.0.0</version>
+  <version>0.0.1</version>
   <description>PHZ and related parameters package</description>
 
   <maintainer email="agrawal.poorva40@gmail.com">Poorva Agrawal</maintainer>
@@ -36,6 +36,7 @@
   <depend>geometry_msgs</depend>
   <depend>tf2</depend>
   <depend>tf2_geometry_msgs</depend>
+  <depend>visualization_msgs</depend>
 
   <!--<build_depend>rospy</build_depend> -->
   <!--<exec_depend>rospy</exec_depend> -->

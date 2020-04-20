@@ -9,7 +9,7 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 #define RAD2DEG 57.295779513
-#define AVERAGE_FLAG 1
+#define AVERAGE_PRED 1
 
 geometry_msgs::Pose wp0;
 geometry_msgs::Pose wp1;
@@ -57,8 +57,8 @@ void pod_pred_CB(const geometry_msgs::PoseStamped::ConstPtr& msg){
 	m.getRPY(roll, pitch, yaw);
 
 	theta = (theta*count+yaw)/(count+1);
-	
-	if (AVERAGE_FLAG == 1) count++;
+
+	if (AVERAGE_PRED == 1) count++;
 
 	double R =  sqrt(pod_x*pod_x + pod_y*pod_y);
 
