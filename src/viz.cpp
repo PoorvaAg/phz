@@ -68,7 +68,7 @@ std::vector<geometry_msgs::Point> generate_box_corners(double x, double y, geome
 	double roll, pitch, theta;
 	mat.getRPY(roll, pitch, theta);
 
-	double beta = PI/2 - theta;
+	double beta = (PI/2) - theta;
 
 	double sx = x - fl*cos(theta);
 	double sy = y - fl*sin(theta);
