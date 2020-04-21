@@ -2,16 +2,14 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/PoseArray.h>
 #include <geometry_msgs/Quaternion.h>
-//#include <geometry_msgs/Pose.h>
 #include <geometry_msgs/Point.h>
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2/LinearMath/Matrix3x3.h>
+#include <visualization_msgs/Marker.h>
+#include <visualization_msgs/MarkerArray.h>
 #include <cmath>
 #include <vector>
 #include <tuple>
-#include <tf2/LinearMath/Quaternion.h>
-#include <tf2/LinearMath/Matrix3x3.h>
-//#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#include <visualization_msgs/Marker.h>
-#include <visualization_msgs/MarkerArray.h>
 
 #define PI 3.14159
 
@@ -100,8 +98,9 @@ std::vector<geometry_msgs::Point> generate_box_corners(double x, double y, geome
 
 	pts.push_back(ll);
 	pts.push_back(lr);
-	pts.push_back(ul);
 	pts.push_back(ur);
+	pts.push_back(ul);
+	pts.push_back(ll);
 
 	return pts;
 }
@@ -125,7 +124,7 @@ visualization_msgs::Marker getBBMarker(std::string name, int id, float scale, fl
 }
 
 
-visualization_msgs::Marker getArrowMarker(std::string name, int id, float r, double x, double y, geometry_msgs::Quaternion q){
+visualization_msgs::Marker getArrowMarker(std::string name, int id, float r, float g, double x, double y, geometry_msgs::Quaternion q){
 	
 	visualization_msgs::Marker mk;
 	mk.header.frame_id = "map";
@@ -134,12 +133,12 @@ visualization_msgs::Marker getArrowMarker(std::string name, int id, float r, dou
 	mk.id = id;
 	mk.type = mk.ARROW;
 	mk.action = mk.ADD;
-	mk.scale.x = 0.5;
-	mk.scale.y = 0.05;
+	mk.scale.x = 1.0;
+	mk.scale.y = 0.5;
 	mk.scale.x = 0.1;
 	mk.color.a = 1.0;
 	mk.color.r = r;
-	mk.color.g = 1.0;
+	mk.color.g = g;
 	mk.color.b = 0.0;
 	mk.pose.orientation = q;
     mk.pose.position.x = x;
@@ -160,13 +159,13 @@ std::vector<visualization_msgs::Marker> getMarkers(){
 		int n = gt_coords.size();
 		if (n>0){
 			
-			visualization_msgs::Marker mk = getBBMarker("PHZ_ground_truth", id, 0.3, 1.0);
+			visualization_msgs::Marker mk = getBBMarker("PHZ_ground_truth", id, 0.2, 1.0);
 			mk.points = generate_box_corners(std::get<0>(gt_coords[n-1]), std::get<1>(gt_coords[n-1]),std::get<2>(gt_coords[n-1]));
 			id++;
 			v.push_back(mk);
 
 			for (int i = 0; i<n; i++){
-				v.push_back(getArrowMarker("ground_truth", id, 1.0, std::get<0>(gt_coords[n-1]), std::get<1>(gt_coords[n-1]),std::get<2>(gt_coords[n-1])));
+				v.push_back(getArrowMarker("ground_truth_wp", id, 1.0, 1.0, std::get<0>(gt_coords[i]), std::get<1>(gt_coords[i]),std::get<2>(gt_coords[i])));
 				id++;
 			}
 		}
@@ -179,13 +178,13 @@ std::vector<visualization_msgs::Marker> getMarkers(){
 		int n = pred_coords.size();
 		if (n>0){
 			
-			visualization_msgs::Marker mk = getBBMarker("PHZ_predicted", id, 0.3, 0.0);
+			visualization_msgs::Marker mk = getBBMarker("PHZ_predicted", id, 0.2, 0.0);
 			mk.points = generate_box_corners(std::get<0>(pred_coords[n-1]), std::get<1>(pred_coords[n-1]),std::get<2>(pred_coords[n-1]));
 			id++;
 			v.push_back(mk);
 
 			for (int i = 0; i<n; i++){
-				v.push_back(getArrowMarker("predicted", id, 0.0, std::get<0>(pred_coords[n-1]), std::get<1>(pred_coords[n-1]),std::get<2>(pred_coords[n-1])));
+				v.push_back(getArrowMarker("predicted_wp", id, 0.0, 1.0, std::get<0>(pred_coords[i]), std::get<1>(pred_coords[i]),std::get<2>(pred_coords[i])));
 				id++;
 			}
 		}
@@ -195,7 +194,7 @@ std::vector<visualization_msgs::Marker> getMarkers(){
 
 	//for phz start location
 	if (flag_phz){
-		v.push_back(getArrowMarker("PHZ_start", id, 0.0, std::get<0>(phz_coords), std::get<1>(phz_coords),std::get<2>(phz_coords)));
+		v.push_back(getArrowMarker("PHZ_start_location", id, 1.0, 0.0, std::get<0>(phz_coords), std::get<1>(phz_coords),std::get<2>(phz_coords)));
 		flag_phz = 0;
 	}
 
@@ -208,11 +207,10 @@ int main(int argc, char **argv){
 	ros::NodeHandle n;	
 
 	ros::Subscriber pod_pred_sub = n.subscribe("waypoints_goal",1000, pod_pred_CB);
-	ros::Subscriber pod_gt_sub = n.subscribe("gt_waypoints_goal",1000,pod_gt_CB);
+	ros::Subscriber pod_gt_sub = n.subscribe("gt_waypoints_goal",1000, pod_gt_CB);
 	ros::Subscriber phz_start_sub = n.subscribe("phz_start_groundtruth",1000,phz_gt_CB);
 
 	ros::Publisher phz_pub = n.advertise<visualization_msgs::MarkerArray>("phz",10);
-	ros::Publisher phz_marker_pub = n.advertise<visualization_msgs::MarkerArray>("estimateLoc", 10);
 
 	visualization_msgs::MarkerArray phz_array;
 
