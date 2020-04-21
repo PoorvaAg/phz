@@ -22,7 +22,7 @@ double bl = 1.0;
 
 //to store phz waypoints
 std::vector<std::tuple<double, double, geometry_msgs::Quaternion>> pred_coords;
-std::vector<std::tuple<double, double, geometry_msgs::Quaternion>> gt_coords;
+std::tuple<double, double, geometry_msgs::Quaternion> gt_coords;
 std::tuple<double, double, geometry_msgs::Quaternion> phz_coords;
 
 //callback flags
@@ -43,16 +43,11 @@ void pod_pred_CB(const geometry_msgs::PoseArray msg){
 
 }
 
-void pod_gt_CB(const geometry_msgs::PoseArray msg){
-	std::vector<std::tuple<double, double, geometry_msgs::Quaternion>> coords;
-	for (geometry_msgs::Pose pose : msg.poses){
-		std::tuple<double, double, geometry_msgs::Quaternion> tup(pose.position.x, pose.position.y,pose.orientation);
-		coords.push_back(tup);
-	}
-	gt_coords = coords;
+void pod_gt_CB(const geometry_msgs::PoseStamped msg){
+	std::tuple<double, double, geometry_msgs::Quaternion> tup(msg.pose.position.x, msg.pose.position.y,msg.pose.orientation);
+	gt_coords = tup;
 	flag_gt = 1;
 }
-
 
 void phz_gt_CB(const geometry_msgs::PoseStamped msg){
 	std::tuple<double, double, geometry_msgs::Quaternion> tup(msg.pose.position.x, msg.pose.position.y,msg.pose.orientation);
@@ -156,20 +151,14 @@ std::vector<visualization_msgs::Marker> getMarkers(){
 	//for ground truth waypoint markers
 	if (flag_gt){
 
-		int n = gt_coords.size();
-		if (n>0){
+		//int n = gt_coords.size() //check data present
 			
-			visualization_msgs::Marker mk = getBBMarker("PHZ_ground_truth", id, 0.2, 1.0);
-			mk.points = generate_box_corners(std::get<0>(gt_coords[n-1]), std::get<1>(gt_coords[n-1]),std::get<2>(gt_coords[n-1]));
-			id++;
-			v.push_back(mk);
-
-			for (int i = 0; i<n; i++){
-				v.push_back(getArrowMarker("ground_truth_wp", id, 1.0, 1.0, 0.0, std::get<0>(gt_coords[i]), std::get<1>(gt_coords[i]),std::get<2>(gt_coords[i])));
-				id++;
-			}
-		}
-
+		visualization_msgs::Marker mk = getBBMarker("PHZ_groundtruth", id, 0.2, 1.0);
+		mk.points = generate_box_corners(std::get<0>(gt_coords), std::get<1>(gt_coords),std::get<2>(gt_coords));
+		id++;
+		v.push_back(mk);
+		v.push_back(getArrowMarker("pod_groundtruth_location", id, 1.0, 1.0, 0.0, std::get<0>(gt_coords), std::get<1>(gt_coords),std::get<2>(gt_coords)));
+		id++;
 		flag_gt = 0;
 	}
 	
@@ -207,7 +196,7 @@ int main(int argc, char **argv){
 	ros::NodeHandle n;	
 
 	ros::Subscriber pod_pred_sub = n.subscribe("waypoints_goal",1000, pod_pred_CB);
-	ros::Subscriber pod_gt_sub = n.subscribe("gt_waypoints_goal",1000, pod_gt_CB);
+	ros::Subscriber pod_gt_sub = n.subscribe("pod_groundtruth",1000, pod_gt_CB);
 	ros::Subscriber phz_start_sub = n.subscribe("phz_start_groundtruth",1000,phz_gt_CB);
 
 	ros::Publisher phz_pub = n.advertise<visualization_msgs::MarkerArray>("phz",10);
