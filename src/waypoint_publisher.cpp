@@ -57,49 +57,48 @@ void pod_pred_CB(const geometry_msgs::PoseStamped::ConstPtr& msg){
 
 }
 
+double quat_to_yaw(double x, double y, double z, double w){
+
+	double roll, pitch, yaw;
+	tf2::Quaternion q(x, y, z, w);
+	tf2::Matrix3x3 mat(q);
+	mat.getRPY(roll, pitch, yaw);
+	return yaw;
+}
+
 
 std::vector<double> set_params(const geometry_msgs::PoseStamped::ConstPtr& msg){
 	std::vector<double> v (3, 0.0);
 	v[0] = msg->pose.position.x;
 	v[1] = msg->pose.position.y;
-
-		tf2::Quaternion q(
-		msg->pose.orientation.x,
-		msg->pose.orientation.y,
-		msg->pose.orientation.z,
-		msg->pose.orientation.w);
-	tf2::Matrix3x3 mat(q);
-
-	double roll, pitch, yaw;
-	mat.getRPY(roll, pitch, yaw);
-	v[2] = yaw;
-
+	v[2] = quat_to_yaw(msg->pose.orientation.x,msg->pose.orientation.y,	msg->pose.orientation.z,msg->pose.orientation.w);
 	return v;
+}
+
+geometry_msgs::Pose set_pose(double x, double y, double d, geometry_msgs::Quaternion q, double theta){
+	geometry_msgs::Pose p;
+	p.position.x = x - d*cos(theta);
+	p.position.y = y - d*sin(theta);
+	p.position.z = 0;
+	p.orientation = q;
+	return p;
 }
 
 std::vector<geometry_msgs::Pose> generate_wps(double x, double y, geometry_msgs::Quaternion q){
 	
 	std::vector<geometry_msgs::Pose> poses;
-	double theta = atan2(y, x);
-	double R =  sqrt(x*x + y*y);
+	double theta = quat_to_yaw(q.x,q.y,q.z,q.w);
 
-	poses.push_back(set_pose(R-3.5, theta, q));
-	poses.push_back(set_pose(R-3.0, theta, q));
-	poses.push_back(set_pose(R-2.0, theta, q ));
-	poses.push_back(set_pose(R-1.0, theta, q));
-	poses.push_back(set_pose(R, theta, q));
+	poses.push_back(set_pose(x, y, 3.5, q, theta));
+	poses.push_back(set_pose(x, y, 3.0, q, theta));
+	poses.push_back(set_pose(x, y, 2.0, q, theta ));
+	poses.push_back(set_pose(x, y, 1.0, q, theta));
+	poses.push_back(set_pose(x, y, 0, q, theta));
 
 	return poses;
 }
 
-geometry_msgs::Pose set_pose(double R, double theta, geometry_msgs::Quaternion q){
-	geometry_msgs::Pose p;
-	p.orientation = q;
-	p.position.x = R*cos(theta);
-	p.position.y = R*sin(theta);
-	p.position.z = 0;
-	return p;
-}
+
 
 
 int main(int argc, char **argv){
