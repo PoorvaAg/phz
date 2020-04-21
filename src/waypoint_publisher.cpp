@@ -13,13 +13,13 @@
 #define RAD2DEG 57.295779513
 #define AVERAGE_PRED 1
 
-std::tuple<double, double, geometry_msgs::Quaternion> gt_coords;
+//std::tuple<double, double, geometry_msgs::Quaternion> gt_coords;
 std::tuple<double, double, geometry_msgs::Quaternion> pred_coords;
 std::vector<double> last_pred (3,0);
 
 int count = 0;
 int flag_pred = 0;
-int flag_gt = 0;
+//int flag_gt = 0;
 
 
 //functions
@@ -29,6 +29,7 @@ std::vector<double> set_params(const geometry_msgs::PoseStamped::ConstPtr& msg);
 std::vector<geometry_msgs::Pose> generate_wps(double x, double y, geometry_msgs::Quaternion q);
 geometry_msgs::Pose set_pose(double R, double theta, geometry_msgs::Quaternion q);
 
+/*
 void pod_gt_CB(const geometry_msgs::PoseStamped::ConstPtr& msg){
 	std::get<0>(gt_coords) = msg->pose.position.x;
 	std::get<1>(gt_coords) = msg->pose.position.y;
@@ -36,6 +37,7 @@ void pod_gt_CB(const geometry_msgs::PoseStamped::ConstPtr& msg){
 
 	flag_gt = 1;
 }
+*/
 
 void pod_pred_CB(const geometry_msgs::PoseStamped::ConstPtr& msg){
 	std::vector<double> v = set_params(msg);
@@ -107,13 +109,13 @@ int main(int argc, char **argv){
 	ros::NodeHandle n;	
 
 	ros::Subscriber pod_pred_sub = n.subscribe("pod_predicted_laser",1000, pod_pred_CB);
-	ros::Subscriber pod_gt_sub = n.subscribe("pod_groundtruth",1000,pod_gt_CB);
+	//ros::Subscriber pod_gt_sub = n.subscribe("pod_groundtruth",1000,pod_gt_CB);
 
 	ros::Publisher wp_pred_pub = n.advertise<geometry_msgs::PoseArray>("waypoints_goal",10);
 	//ros::Publisher wp_gt_pub = n.advertise<geometry_msgs::PoseArray>("gt_waypoints_goal",10);
 
 	geometry_msgs::PoseArray wp_pred;
-	geometry_msgs::PoseArray wp_gt;
+	//geometry_msgs::PoseArray wp_gt;
 
 	ros::Rate loop_rate(10);
 
