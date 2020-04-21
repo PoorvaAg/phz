@@ -86,15 +86,15 @@ std::vector<geometry_msgs::Point> generate_box_corners(double x, double y, geome
 	lr.y = sy - hw*sin(beta);
 	lr.z = 0.0;
 
-	geometry_msgs::Point ul;
-	ul.x = ex + hw*cos(beta);
-	ul.y = ey - hw*sin(beta);
-	ul.z = 0.0;
-
 	geometry_msgs::Point ur;
-	ur.x = ex - hw*cos(beta);
-	ur.y = ey + hw*sin(beta);
+	ur.x = ex + hw*cos(beta);
+	ur.y = ey - hw*sin(beta);
 	ur.z = 0.0;
+
+	geometry_msgs::Point ul;
+	ul.x = ex - hw*cos(beta);
+	ul.y = ey + hw*sin(beta);
+	ul.z = 0.0;
 
 	pts.push_back(ll);
 	pts.push_back(lr);
@@ -124,7 +124,7 @@ visualization_msgs::Marker getBBMarker(std::string name, int id, float scale, fl
 }
 
 
-visualization_msgs::Marker getArrowMarker(std::string name, int id, float r, float g, double x, double y, geometry_msgs::Quaternion q){
+visualization_msgs::Marker getArrowMarker(std::string name, int id, float r, float g, float b, double x, double y, geometry_msgs::Quaternion q){
 	
 	visualization_msgs::Marker mk;
 	mk.header.frame_id = "map";
@@ -133,13 +133,13 @@ visualization_msgs::Marker getArrowMarker(std::string name, int id, float r, flo
 	mk.id = id;
 	mk.type = mk.ARROW;
 	mk.action = mk.ADD;
-	mk.scale.x = 1.0;
-	mk.scale.y = 0.5;
-	mk.scale.x = 0.1;
+	mk.scale.x = 0.5;
+	mk.scale.y = 0.2;
+	mk.scale.z = 0.1;
 	mk.color.a = 1.0;
 	mk.color.r = r;
 	mk.color.g = g;
-	mk.color.b = 0.0;
+	mk.color.b = b;
 	mk.pose.orientation = q;
     mk.pose.position.x = x;
     mk.pose.position.y = y;
@@ -165,7 +165,7 @@ std::vector<visualization_msgs::Marker> getMarkers(){
 			v.push_back(mk);
 
 			for (int i = 0; i<n; i++){
-				v.push_back(getArrowMarker("ground_truth_wp", id, 1.0, 1.0, std::get<0>(gt_coords[i]), std::get<1>(gt_coords[i]),std::get<2>(gt_coords[i])));
+				v.push_back(getArrowMarker("ground_truth_wp", id, 1.0, 1.0, 0.0, std::get<0>(gt_coords[i]), std::get<1>(gt_coords[i]),std::get<2>(gt_coords[i])));
 				id++;
 			}
 		}
@@ -184,7 +184,7 @@ std::vector<visualization_msgs::Marker> getMarkers(){
 			v.push_back(mk);
 
 			for (int i = 0; i<n; i++){
-				v.push_back(getArrowMarker("predicted_wp", id, 0.0, 1.0, std::get<0>(pred_coords[i]), std::get<1>(pred_coords[i]),std::get<2>(pred_coords[i])));
+				v.push_back(getArrowMarker("predicted_wp", id, 0.0, 1.0, 0.0, std::get<0>(pred_coords[i]), std::get<1>(pred_coords[i]),std::get<2>(pred_coords[i])));
 				id++;
 			}
 		}
@@ -194,7 +194,7 @@ std::vector<visualization_msgs::Marker> getMarkers(){
 
 	//for phz start location
 	if (flag_phz){
-		v.push_back(getArrowMarker("PHZ_start_location", id, 1.0, 0.0, std::get<0>(phz_coords), std::get<1>(phz_coords),std::get<2>(phz_coords)));
+		v.push_back(getArrowMarker("PHZ_start_location", id, 0.0, 0.0, 1.0, std::get<0>(phz_coords), std::get<1>(phz_coords),std::get<2>(phz_coords)));
 		flag_phz = 0;
 	}
 
