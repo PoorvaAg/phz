@@ -133,8 +133,8 @@ visualization_msgs::Marker getArrowMarker(std::string name, int id, float r, flo
 	mk.id = id;
 	mk.type = mk.ARROW;
 	mk.action = mk.ADD;
-	mk.scale.x = 0.5;
-	mk.scale.y = 0.2;
+	mk.scale.x = 0.4;
+	mk.scale.y = 0.09;
 	mk.scale.z = 0.1;
 	mk.color.a = 1.0;
 	mk.color.r = r;
