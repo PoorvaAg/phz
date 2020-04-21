@@ -110,7 +110,7 @@ int main(int argc, char **argv){
 	ros::Subscriber pod_gt_sub = n.subscribe("pod_groundtruth",1000,pod_gt_CB);
 
 	ros::Publisher wp_pred_pub = n.advertise<geometry_msgs::PoseArray>("waypoints_goal",10);
-	ros::Publisher wp_gt_pub = n.advertise<geometry_msgs::PoseArray>("gt_waypoints_goal",10);
+	//ros::Publisher wp_gt_pub = n.advertise<geometry_msgs::PoseArray>("gt_waypoints_goal",10);
 
 	geometry_msgs::PoseArray wp_pred;
 	geometry_msgs::PoseArray wp_gt;
@@ -135,6 +135,7 @@ int main(int argc, char **argv){
 			
 		}
 
+		/*
 		if (flag_gt){
 			wp_gt.header.stamp = ros::Time::now();
 			wp_gt.header.frame_id = "map";
@@ -142,7 +143,7 @@ int main(int argc, char **argv){
 			wp_gt_pub.publish(wp_gt);
 			flag_gt = 0;
 		}
-
+		*/
 		ros::spinOnce();
 		loop_rate.sleep();
 	}
