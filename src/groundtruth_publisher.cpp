@@ -9,15 +9,19 @@
 
 #define RAD2DEG 57.295779513
 
+double pod_x;
+double pod_y;
+double pod_theta ;
+geometry_msgs::PoseStamped pod_msg;
+
+
 double phz_x;
 double phz_y;
 double phz_theta ;
 geometry_msgs::PoseStamped phz_msg;
 
-double pod_x;
-double pod_y;
-double pod_theta ;
-geometry_msgs::PoseStamped pod_msg;
+//distance between pod centre and phz start
+double dist = 4.0;
 
 void set_pod_loc(){
 	pod_msg.header.frame_id = "map";
@@ -30,15 +34,16 @@ void set_pod_loc(){
 	pod_msg.pose.orientation= tf2::toMsg(quat);
 }
 
-void set_phz_start(){
-	double R = sqrt(pod_x*pod_x + pod_y*pod_y) - 4.0;
-	double theta = atan2(pod_y,pod_x);
+void set_phz_start(){	
 	phz_theta = pod_theta;
 	phz_msg.header.frame_id = "map";
-	phz_msg.pose.position.x = R*cos(theta);
-	phz_msg.pose.position.y = R*sin(theta);
+	phz_msg.pose.position.x = pod_x - dist*cos(phz_theta);
+	phz_msg.pose.position.y = pod_y - dist*sin(phz_theta);
 	phz_msg.pose.position.z = 0;
-	phz_msg.pose.orientation = pod_msg.pose.orientation;
+
+	tf2::Quaternion quat;
+	quat.setRPY( 0, 0, phz_theta);
+	phz_msg.pose.orientation= tf2::toMsg(quat);
 }
 
 int main(int argc, char **argv){
@@ -55,13 +60,13 @@ int main(int argc, char **argv){
 	n.getParam("/align/pod1/y_loc", pod_y);
 	n.getParam("/align/pod1/theta", pod_theta);
 
-	set_pod_loc();
-	set_phz_start();
+
 
 
 
 	while(ros::ok()) {
-
+		set_pod_loc();
+		set_phz_start();
 
 		ROS_INFO("Pod location ground truth: X: %.2f Y: %.2f", pod_msg.pose.position.x, pod_msg.pose.position.y);
 		ROS_INFO("PHZ start location ground truth: X: %.2f Y: %.2f", phz_msg.pose.position.x, phz_msg.pose.position.y);
