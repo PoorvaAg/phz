@@ -14,7 +14,7 @@ std_msgs::String out_msg;
 double target_x = 0.0;
 double target_y = 0.0;
 
-double min_dist = 2.0;
+double min_dist = 2.0+0.5*1.9; //pose is of base_link at chassis rear
 
 
 void phz_start_CB(const geometry_msgs::PoseStamped::ConstPtr& msg){

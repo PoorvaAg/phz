@@ -13,7 +13,7 @@
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
 
-/*
+
 //Global Variables
 
 
@@ -30,6 +30,42 @@ int flag_gt = 0;
 int flag_phz = 0;
 
 //Functions
+
+//Subscriber Callbacks
+void pod_pred_CB(const geometry_msgs::PoseArray msg){
+	std::vector<std::tuple<double, double, geometry_msgs::Quaternion>> coords;
+	geometry_msgs::Pose pose;
+	for (pose : msg.poses){
+		std::tuple<double, double, geometry_msgs::Quaternion> tup(pose.position.x, pose.position.y,pose.orientation);
+		coords.push_back(tup);
+	}
+
+	pred_coords = coords;
+	flag_pred = 1;
+
+}
+
+void pod_gt_CB(const geometry_msgs::PoseArray msg){
+	std::vector<std::tuple<double, double, geometry_msgs::Quaternion>> coords;
+	geometry_msgs::Pose pose;
+	for (pose : msg.poses){
+		std::tuple<double, double, geometry_msgs::Quaternion> tup(pose.position.x, pose.position.y,pose.orientation);
+		coords.push_back(tup);
+	}
+
+	gt_coords = coords;
+	flag_gt = 1;
+}
+
+
+void phz_gt_CB(const geometry_msgs::PoseStamped::ConstPtr& msg){
+	std::tuple<double, double, geometry_msgs::Quaternion> tup(pose.position.x, pose.position.y,pose.orientation);
+	phz_coords = tup;
+	flag_phz = 1;
+
+}
+
+
 
 std::vector<geometry_msgs::Point> generate_box_corners(double x, double y, double theta){
 	std::vector<geometry_msgs::Point> pts;
@@ -172,41 +208,11 @@ std::vector<visualization_msgs::Marker> getMarkers(){
 	return v;
 }
 
-*/
 
-/*
-void pod_gt_CB(const geometry_msgs::PoseArray msg){
-	std::vector<std::tuple<double, double, geometry_msgs::Quaternion>> coords;
-	geometry_msgs::Pose pose;
-	for (pose : msg.poses){
-		std::tuple<double, double, geometry_msgs::Quaternion> tup(pose.position.x, pose.position.y,pose.orientation);
-		coords.push_back(tup);
-	}
 
-	gt_coords = coords;
-	flag_gt = 1;
-}
 
-void pod_pred_CB(const geometry_msgs::PoseArray msg){
-	std::vector<std::tuple<double, double, geometry_msgs::Quaternion>> coords;
-	geometry_msgs::Pose pose;
-	for (pose : msg.poses){
-		std::tuple<double, double, geometry_msgs::Quaternion> tup(pose.position.x, pose.position.y,pose.orientation);
-		coords.push_back(tup);
-	}
 
-	pred_coords = coords;
-	flag_pred = 1;
 
-}
-
-void phz_gt_CB(const geometry_msgs::PoseStamped::ConstPtr& msg){
-	std::tuple<double, double, geometry_msgs::Quaternion> tup(pose.position.x, pose.position.y,pose.orientation);
-	phz_coords = tup;
-	flag_phz = 1;
-
-}
-*/
 
 
 int main(int argc, char **argv){
@@ -214,9 +220,9 @@ int main(int argc, char **argv){
 	ros::init(argc, argv, "marker_visualizer_node");
 	ros::NodeHandle n;	
 
-	// ros::Subscriber pod_pred_sub = n.subscribe("waypoints_goal",1000, pod_pred_CB);
-	// ros::Subscriber pod_gt_sub = n.subscribe("gt_waypoints_goal",1000,pod_gt_CB);
-	// ros::Subscriber phz_start_sub = n.subscribe("phz_start_groundtruth",1000,phz_gt_CB);
+	ros::Subscriber pod_pred_sub = n.subscribe("waypoints_goal",1000, pod_pred_CB);
+	ros::Subscriber pod_gt_sub = n.subscribe("gt_waypoints_goal",1000,pod_gt_CB);
+	ros::Subscriber phz_start_sub = n.subscribe("phz_start_groundtruth",1000,phz_gt_CB);
 
 	ros::Publisher phz_pub = n.advertise<visualization_msgs::MarkerArray>("phz",10);
 	ros::Publisher phz_marker_pub = n.advertise<visualization_msgs::MarkerArray>("estimateLoc", 10);
@@ -227,13 +233,12 @@ int main(int argc, char **argv){
 
 	while(ros::ok()) {
 
-		/*
 		if (flag_pred || flag_gt || flag_phz ){		
 			phz_array.markers = getMarkers();
 			phz_pub.publish(phz_array);
 		}
 		phz_pub.publish(phz_array);
-		*/
+		
 		ros::spinOnce();
 		loop_rate.sleep();
 	}
