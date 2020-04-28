@@ -31,8 +31,7 @@ void ndt_pose_CB(const geometry_msgs::PoseStamped::ConstPtr& msg){
 
 	if (dist<=min_dist){
 		ROS_INFO("PHZ reached");
-		ROS_INFO("POD Location: X: %.2f Y: %.2f", target_x, target_y);
-		ROS_INFO("Received odom in '%s' frame : X: %.2f Y: %.2f", msg->header.frame_id.c_str(), x, y);
+		ROS_INFO("Distance from PHZ entry point: %.2f m", dist);
 		out_msg.data = "REACHED";
 		detection_pub.publish(out_msg);
 	} else {
